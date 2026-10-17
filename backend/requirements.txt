@@ -1,0 +1,13 @@
+
+fastapi
+uvicorn[standard]
+httpx
+pydantic>=2,<3
+pydantic-settings
+groq
+supadata
+fastembed
+faiss-cpu
+numpy
+pytest
+pytest-asyncio
