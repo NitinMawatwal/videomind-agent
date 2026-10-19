@@ -5,6 +5,11 @@ from backend.retrieval_service import retrieval_service
 from backend.transcript_service import fetch_transcript
 from backend.chunking import chunk_transcript
 from backend.llm_service import generate_answer
+from backend.memory_service import (
+    initialize_database,
+    save_message,
+    get_recent_messages,
+)
 
 app = FastAPI(title="VideoMind Agent")
 
@@ -15,7 +20,13 @@ class IngestRequest(BaseModel):
 
 class AskRequest(BaseModel):
     question: str = Field(min_length=1)
+    session_id: str = Field(min_length=1, max_length=100)
     top_k: int = Field(default=3, ge=1, le=10)
+
+
+@app.on_event("startup")
+async def startup_event():
+    initialize_database()
 
 
 @app.get("/health")
@@ -64,13 +75,20 @@ async def ask_question(request: AskRequest):
                 detail="No transcript found. Ingest a video first.",
             )
 
+        history = get_recent_messages(request.session_id, limit=10)
+
         answer = await generate_answer(
             request.question,
             results,
+            history=history,
         )
+
+        save_message(request.session_id, "user", request.question)
+        save_message(request.session_id, "assistant", answer)
 
         return {
             "question": request.question,
+            "session_id": request.session_id,
             "answer": answer,
             "results_count": len(results),
             "sources": [
