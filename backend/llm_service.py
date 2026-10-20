@@ -34,7 +34,12 @@ async def generate_answer(
                 "does not support an answer, you may use the search_web tool "
                 "to find additional information. Use web search for current "
                 "facts or when outside information is needed. Be concise "
-                "and distinguish external information from video content."
+                "and distinguish external information from video content. "
+                "When you use web search results, cite relevant sources in "
+                "your answer using their exact titles and URLs provided in "
+                "the results. Never invent URLs or claim a source supports "
+                "something it does not. When answering from the transcript, "
+                "include relevant timestamps when available."
             ),
         }
     ]
